@@ -15,17 +15,17 @@ class Menu
 
     public function init()
     {
-        $this->html = '<div class="collapse navbar-collapse" id="sidenav-collapse-main">';
+        $this->html = '<div class="" id="sidenav-collapse-main">';
         return $this;
     }
 
     public function item($title, $icon, $url, $isActive, $assign)
     {
         if (is_array($assign) && in_array(AuthCommon::user()->role->role, $assign)) {
-            $this->html .= '<li class="nav-item">
-                <a class="nav-link ' . ($isActive ? 'active' : '') . '" href="' . url($url) . '">
+            $this->html .= '<li class="w-full">
+                <a class="w-full text-gray-700 w-full block p-3 text-xs' . ($isActive ? ' bg-red-300 text-white font-bold rounded-lg shadow' : '') . '" href="' . url($url) . '">
                     <i class="' . $icon . '"></i>
-                    <span class="nav-link-text">' . $title . '</span>
+                    <span class="ml-2">' . $title . '</span>
                 </a>
             </li>';
         }
@@ -37,9 +37,9 @@ class Menu
     {
         if (is_array($assign)) {
             if (in_array(AuthCommon::user()->role->role, $assign)) {
-                $this->html .= '<hr class="my-3">
-                <h6 class="navbar-heading p-0 text-muted">
-                    <span class="docs-normal">' . $title . '</span>
+                $this->html .= '
+                <h6 class="navbar-heading p-0 font-bold text-gray-400 my-3 tracking-wide text-xs uppercase">
+                  <span class="docs-normal">' . $title . '</span>
                 </h6>';
             }
 

@@ -1,23 +1,13 @@
-<nav class="sidenav navbar navbar-vertical fixed-left navbar-expand-xs navbar-light bg-white" id="sidenav-main">
+<nav class="sidenav fixed h-screen w-xs flex justify-center items-center" id="sidenav-main">
 
-  <div class="scrollbar-inner">
+  <div class="bg-white h-11/12 w-10/12 rounded-lg">
     <!-- Brand -->
-    <div class="sidenav-header d-flex align-items-center">
-      <a class="navbar-brand" style="flex:1" href="{{ route('dashboard.index') }}">
-        <img src="{{ asset('assets/img/icons/ruang-cerita.png') }}" class="navbar-brand-img" alt="..." style="width: 100%;scale:2;object-fit:contain;">
+    <div class="sidenav-header p-5 border-b border-b border-gray-100">
+      <a class="text-xl font-bold tracking-wide text-gray-800 text-center block" href="{{ route('dashboard.index') }}">
+        SVTB CRISBAR
       </a>
-      <div class="ml-auto">
-        <!-- Sidenav toggler -->
-        <div class="sidenav-toggler d-none d-xl-block" data-action="sidenav-unpin" data-target="#sidenav-main">
-          <div class="sidenav-toggler-inner">
-            <i class="sidenav-toggler-line"></i>
-            <i class="sidenav-toggler-line"></i>
-            <i class="sidenav-toggler-line"></i>
-          </div>
-        </div>
-      </div>
     </div>
-    <div class="navbar-inner">
+    <div class="p-5 text-gray-800">
       @php
         use App\Helpers\Menu;
         $menu = '';
@@ -26,12 +16,12 @@
         $obj_menu
             ->init()
             ->start_group()
-            ->item('Dashboard', 'ni ni-tv-2', 'admin', Request::is('admin'), ['Admin','Pengguna'])
+            ->item('Dashboard', 'fas fa-tv', 'admin', Request::is('admin'), ['Pemilik','Karyawan'])
             ->end_group();
 
         $obj_menu
             ->divinder('Manajemen', [
-                'Admin',
+                'Pemilik',
             ])
             ->start_group()
             ->item('Pengguna', 'fas fa-user', 'admin/manajemen/user', Request::is('admin/manajemen/user'), ['Admin'])

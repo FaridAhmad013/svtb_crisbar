@@ -11,7 +11,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        if (!in_array(AuthCommon::user()->role->role, ['Admin','Pengguna'])) abort('403');
+        if (!in_array(AuthCommon::user()->role->role, ['Pemilik','Karyawan'])) abort('403');
 
         $user = AuthCommon::user();
         $role = $user->role ?? null;
@@ -28,11 +28,11 @@ class DashboardController extends Controller
             $ucapan = "Selamat beristirahat, $nama_lengkap.";
         }
 
-        if($role->role == 'Admin'){
-            return view('pages.dashboard.admin', compact('role', 'ucapan'));
+        if($role->role == 'Pemilik'){
+            return view('pages.dashboard.pemilik', compact('role', 'ucapan'));
         }
 
-        return view('pages.dashboard.pengguna', compact('role', 'ucapan'));
+        return view('pages.dashboard.karyawan', compact('role', 'ucapan'));
     }
 
     public function get_total_pengguna(){

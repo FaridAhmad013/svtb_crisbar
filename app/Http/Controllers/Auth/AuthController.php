@@ -3,17 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Helpers\AuthCommon;
-use App\Helpers\ConstantUtility;
-use App\Helpers\GeminiUtility;
 use App\Helpers\ResponseConstant;
-use App\Helpers\Util;
 use App\Http\Controllers\Controller;
-use App\Models\ResponAi;
 use App\Models\Role;
-use App\Models\SesiJournal;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -74,7 +68,7 @@ class AuthController extends Controller
 
 
         $get_role = Role::find($result->role_id);
-        if(!in_array($get_role->role, ['Admin', 'Pengguna'])){
+        if(!in_array($get_role->role, ['Pemilik', 'Karyawan'])){
             return response([
                 'status' => false,
                 'message' => 'Anda Tidak Punya Hak Akses'
@@ -85,15 +79,6 @@ class AuthController extends Controller
         $data_session = (object) $result->toArray();
         unset($result->password);
         $data_session->role = $get_role;
-        // menentukan tema jika pengguna
-        if($get_role->role == 'Pengguna'){
-            $data_session->theme = ConstantUtility::THEME_PERTANYAAN_DEFAULT;
-
-            $respon_ai_result = SesiJournal::where('user_id', $data_session->id)->whereNotNull('kesimpulan_ai')->latest()->first();
-            if($respon_ai_result){
-                $data_session->theme = GeminiUtility::tentukanTemaHarian($respon_ai_result->kesimpulan_ai, $result->id);
-            }
-        }
         AuthCommon::setUser($data_session);
 
         User::where('username', $request->username)->update(['last_login' => Carbon::now()]);

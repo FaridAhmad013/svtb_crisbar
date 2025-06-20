@@ -18,8 +18,18 @@ Route::namespace('App\Http\Controllers\Auth')->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 });
 
+
+Route::get('/debug-middleware', function () {
+    return 'Middleware loaded: ' . RyunnaAuth::class;
+});
+
 Route::prefix('admin')->middleware([RyunnaAuth::class])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
+
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/edit_profile', [ProfileController::class, 'edit_profile'])->name('profile.edit_profile');
+    Route::put('/profile/updatepassword', [ProfileController::class, 'updatePassword'])->name('profile.updatepassword');
 });
 
 

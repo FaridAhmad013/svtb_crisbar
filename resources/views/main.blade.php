@@ -33,7 +33,7 @@
       }
     </style>
   </head>
-  <body class="bg-slate-400">
+  <body class="bg-slate-50">
 
     <header class="bg-white">
       <nav class="relative p-8">
@@ -61,7 +61,7 @@
               <li><a href="#">Contact</a></li>
             </ul>
 
-            <a href="{{ route('auth.login') }}" class="bg-red-400 px-5 py-1 rounded-3xl hover:bg-red-500 text-white hidden md:flex" role="button">Sign In</a>
+            <a href="{{ route('auth.login') }}" class="bg-red-400 px-5 py-1 rounded-3xl hover:bg-red-500 text-white hidden md:flex" role="button">Login</a>
 
           <!-- Mobile menu icon -->
           <button id="mobile-icon" class="md:hidden">
