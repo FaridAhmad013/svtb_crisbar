@@ -1,23 +1,23 @@
 class Ryuna {
   static modal(params) {
-    let { title, body, footer } = params
-    $('#myModal #modal_title').html(title)
-    $('#myModal #modal_body').html(body)
-    $('#myModal #modal_footer').html(footer)
-    $('#myModal').modal('show')
+    let { title, body, footer } = params;
+    $('#modal_title').html(title);
+    $('#modal_body').html(body);
+    $('#modal_footer').html(footer);
+    $('#myModal').removeClass('hidden');
   }
 
   static close_modal() {
-    $('#myModal').modal('hide')
+    $('#myModal').addClass('hidden');
   }
 
   static large_modal() {
-    $('#myModal .modal-dialog').addClass('modal-xl')
-    $('#myModal .modal-dialog').on('click', '[data-dismiss="modal"]', function () {
+    $('#modal_dialog').addClass('max-w-3xl w-full');
+    $('#myModal').on('click', '[data-dismiss="modal"]', function () {
       setTimeout(() => {
-        $('#myModal .modal-dialog').removeClass('modal-xl')
-      }, 500)
-    })
+        $('#modal_dialog').removeClass('max-w-7xl');
+      }, 500);
+    });
   }
 
   static activeBlocks = new Set();
@@ -28,7 +28,7 @@ class Ryuna {
     // Create overlay
     const overlay = document.createElement('div');
     overlay.id = 'blockui-overlay';
-    overlay.className = 'fixed inset-0 bg-black/17 backdrop-blur-sm cursor-wait';
+    overlay.className = 'fixed inset-0 bg-black/50  cursor-wait';
     overlay.style.zIndex = '10000';
 
     // Create modal container
@@ -102,13 +102,13 @@ class Ryuna {
 
     // Create overlay for element
     const overlay = document.createElement('div');
-    overlay.className = 'absolute inset-0 bg-black/10 backdrop-blur-[0.5px] cursor-wait rounded-lg';
+    overlay.className = 'absolute inset-0 bg-black/50  cursor-wait rounded-lg';
     overlay.style.zIndex = '10000';
     overlay.setAttribute('data-blockui-overlay', 'true');
 
     // Create modal container
     const modal = document.createElement('div');
-    modal.className = 'absolute top-[40%] left-[40%] w-1/5 min-w-[95px] p-2.5 px-1.5 text-center bg-white rounded-lg cursor-wait text-base';
+    modal.className = 'absolute top-[40%] left-[40%] w-1/5 min-w-md p-2.5 px-1.5 text-center bg-white rounded-lg cursor-wait text-base';
     modal.style.zIndex = '10020';
     modal.style.color = 'rgba(82, 95, 127, 1)';
     modal.setAttribute('data-blockui-modal', 'true');
@@ -195,6 +195,21 @@ class Ryuna {
       }
   }
 
+  static isPasswordValid(password, username = null) {
+    let regex;
+
+    if (!username) {
+      regex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])[a-zA-Z0-9@#$%^&+=!]{8,}$/;
+    } else {
+      const escapedUsername = escapeRegex(username);
+      const regexString = `^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])[a-zA-Z0-9@#$%^&+=!${escapedUsername}]{8,}$`;
+      regex = new RegExp(regexString);
+    }
+
+    return regex.test(password);
+  }
+
+
   static input_nominal(element) {
     return new AutoNumeric(element, {
       decimalCharacter: ",",
@@ -255,32 +270,6 @@ class Ryuna {
 
   static leftpad(num, targetLength) {
     return String(num).padStart(targetLength, '0')
-  }
-
-  static getSaldo() {
-    let url_get_saldo = base_url + 'admin/get_saldo'
-    $('.saldo-value').html('menyinkronkan ...')
-
-    $('.btn-saldo-refresh').addClass('loading')
-    setTimeout(() => {
-      $.get(url_get_saldo).done((res) => {
-        let saldo = res?.data.saldo
-        saldo = Ryuna.format_nominal(saldo)
-        $('.btn-saldo-refresh').removeClass('loading')
-        $('.saldo-value').html(saldo)
-      }).fail((xhr) => {
-        let saldo = 0
-        saldo = Ryuna.format_nominal(saldo)
-        $('.btn-saldo-refresh').removeClass('loading')
-        $('.saldo-value').html(saldo)
-
-        Swal.fire( {
-            title: xhr?.responseJSON?.message ? xhr.responseJSON.message : 'Internal Server Error',
-            type: 'error',
-            confirmButtonColor: '#007bff'
-        } )
-      })
-    }, 2000)
   }
 
   static noty(type, title, message) {

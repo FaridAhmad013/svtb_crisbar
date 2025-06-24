@@ -1,42 +1,16 @@
-<style>
-  .logo-digdaya{
-    width: 100%;
-    max-width:225px;
-  }
-
-  @media (max-width: 768px){
-    .logo-digdaya{
-      width: 100%;
-      max-width:100px;
-    }
-  }
-
-</style>
-
-<nav class="navbar navbar-top navbar-expand" style="background: transparent;">
-  <div class="container-fluid">
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <!-- Search form -->
-        {{-- @include('admin.searchform') --}}
-        <!-- Navbar links -->
-        <ul class="navbar-nav align-items-center ml-md-auto">
-          <li class="nav-item d-xl-none">
-            <!-- Sidenav toggler -->
-            <div class="pr-3 sidenav-toggler sidenav-toggler-dark" data-action="sidenav-pin" data-target="#sidenav-main">
-              <div class="sidenav-toggler-inner">
-                <i class="sidenav-toggler-line"></i>
-                <i class="sidenav-toggler-line"></i>
-                <i class="sidenav-toggler-line"></i>
-              </div>
-            </div>
-          </li>
-          {{-- @include('admin.searchbar') --}}
-          {{-- @include('admin.notification') --}}
-          {{-- @include('admin.shortcut') --}}
-        </ul>
-        <ul class="navbar-nav align-items-center ml-auto mr-md-0">
-          @include('admin.userbar')
-        </ul>
+<nav class="p-5 border-b border-b border-gray-100 bg-white text-gray-800 relative h-20">
+  <div class="flex flex-wrap justify-between items-center">
+    <div class="p-1">
+      <button id="toggle-menu" class="cursor-pointer" type="button"><i class="fas fa-bars text-xl"></i></button>
+    </div>
+    <div class="flex items-center cursor-pointer" id="navbar-button-dropdown">
+      <img src="{{ asset('img/user.png') }}" alt="Farid Ahmad Fadhilah" class="w-10 h-10 rounded-full object-cover">
+      <div class="text-gray-700 tracking-wide ml-2">Farid Ahmad Fadhilah</div>
+    </div>
+  </div>
+  <div id="navbar-dropdown" style="display: none" class="absolute right-0 z-10 min-w-44 mt-2 mr-3 rounded-md shadow-sm bg-white border border-gray-300">
+    <div class="py-1">
+      <a href="{{ route('auth.logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 font-bold tracking-wide"><i class="fas fa-sign-out-alt mr-3"></i> Logout</a>
     </div>
   </div>
 </nav>

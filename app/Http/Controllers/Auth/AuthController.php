@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Helpers\AuthCommon;
 use App\Helpers\ResponseConstant;
 use App\Http\Controllers\Controller;
+use App\Models\Karyawan;
 use App\Models\Role;
 use App\Models\User;
 use Carbon\Carbon;
@@ -75,6 +76,17 @@ class AuthController extends Controller
             ], 400);
         }
 
+        if($get_role->role == 'Karyawan'){
+            $karyawan = Karyawan::where('user_id', $result->id)->first();
+            if(!$karyawan){
+                return response([
+                    'status' => false,
+                    'message' => 'Anda Tidak Punya Hak Akses'
+                ], 400);
+            }
+
+            $result->karyawan = $karyawan;
+        }
 
         $data_session = (object) $result->toArray();
         unset($result->password);

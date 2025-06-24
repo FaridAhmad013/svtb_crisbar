@@ -8,7 +8,8 @@
   <meta name="author" content="Farid Ahmad Fadhilah">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>SVTB CRISBAR</title>
-  <!-- Favicon -->
+  <link rel="stylesheet" href="{{ asset('vendors/@fortawesome/fontawesome-free/css/all.min.css') }}">
+
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.bunny.net">
@@ -149,7 +150,7 @@
                 <input type="password" name="password" id="password" class="border border-gray-500 text-gray-900 text-sm rounded-lg  focus:outline-none block w-full p-2.5" autocomplete="off">
               </div>
               <div class="my-4">
-                <button type="button" class="mt-9 bg-red-400 px-12 py-3 rounded-lg hover:bg-red-500 text-white w-full" id="btn-submit" onclick="save()">Login</button>
+                <button type="button" class="mt-9 bg-red-400 px-12 py-3 rounded-lg hover:bg-red-500 text-white w-full" id="btn-submit" onclick="save()" ><i class="fas fa-spinner animate-spin mr-2" style="display: none"></i> Login</button>
               </div>
             </form>
           </div>
@@ -160,13 +161,13 @@
   </body>
 
   <script src="{{ asset('vendors/noty/noty.js') }}" type="text/javascript"></script>
-  <script src="{{ asset('vendors/jquery/jquery-3.7.1.min.js') }}" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="{{ asset('vendors/jquery/jquery-3.7.1.min.js') }}" crossorigin="anonymous"></script>
   <script src="{{ asset('js/global.js') }}"></script>
   <script>
     function save(){
-      $('#response_container').empty();
       $('#btn-submit').prop('disabled', true)
-      Ryuna.blockElement('.modal-content');
+      $('#btn-submit i').show()
+      $('#response_container').empty();
       let el_form = $('#myForm')
       let target = el_form.attr('action')
       let formData = new FormData(el_form[0])
@@ -179,22 +180,23 @@
         type: 'POST',
       }).done((res) => {
         if(res?.status == true){
-          let html = '<div class="p-3 bg-green-400 text-green-50 rounded-lg leading-[1.5] tracking-wide w-full">'
+          let html = '<div class="mb-3 p-3 bg-green-300 text-green-50 rounded-lg leading-[1.5] tracking-wide w-full">'
           html += `${res?.message}`
           html += '</div>'
           Ryuna.noty('success', '', res?.message)
           $('#response_container').html(html)
-          Ryuna.unblockElement('.modal-content')
 
           if($('[name="_method"]').val() == undefined) el_form[0].reset()
 
           setTimeout(() => {
             $('#btn-submit').prop('disabled', false)
+            $('#btn-submit i').hide()
             window.location.href = `{{ route('dashboard.index') }}`
           }, 1000);
         }
       }).fail((xhr) => {
         $('#btn-submit').prop('disabled', false)
+        $('#btn-submit i').hide()
         if(xhr?.status == 422){
           let errors = xhr.responseJSON.errors
           let html = '<div class="mb-3 p-3 bg-rose-400 text-rose-50 text-sm rounded-lg leading-[1.5] tracking-wide w-full">'
@@ -205,14 +207,12 @@
           html += '</ul>'
           html += '</div>'
           $('#response_container').html(html)
-          Ryuna.unblockElement('.modal-content')
         }else{
           let html = '<div class="mb-3 p-3 bg-rose-400 text-rose-50 text-sm rounded-lg leading-[1.5] tracking-wide w-full">'
           html += `${xhr?.responseJSON?.message}`
           html += '</div>'
           Ryuna.noty('error', '', xhr?.responseJSON?.message)
           $('#response_container').html(html)
-          Ryuna.unblockElement('.modal-content')
         }
       })
     }

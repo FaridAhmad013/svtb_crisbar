@@ -1,0 +1,118 @@
+a > i {
+  width: 1.5rem;
+  display: inline-block;
+  text-align: center;
+}
+
+body{
+  font-family: "Lexend Deca", serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.dataTables_scrollHead{
+  padding-top: 0.5rem;
+}
+
+table.dataTable thead th, table.dataTable thead td, .dataTables_wrapper.no-footer .dataTables_scrollBody{
+  border-bottom: 1px solid var(--color-gray-100) !important;
+}
+
+table.dataTable thead th, table.dataTable tfoot th{
+  font-weight: 500 !important;
+}
+
+div.dt-buttons > .dt-button, div.dt-buttons > div.dt-button-split .dt-button{
+  margin-right: 0 !important;
+
+}
+
+.dt-buttons{
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  flex-flow: row nowrap;
+}
+
+.dt-button{
+  border: 1px solid oklch(87.2% 0.01 258.338) !important;
+  background: var(--color-gray-100) !important;
+  margin-left: 0 !important;
+  border-radius: 0 !important;
+  color: var(--color-gray-800) !important;
+  transition-duration: 300ms;
+
+}
+
+.dt-button:hover{
+  background: var(--color-gray-200) !important;
+}
+
+.dt-button:focus{
+  outline: none;;
+}
+
+.dt-button-collection{
+  position: relative !important;
+  margin-top: 0 !important;
+}
+
+.dt-button-collection > div[role="menu"]{
+  position: absolute !important;
+  right: 0;
+  margin-top: 0 !important;
+  min-width: 14rem;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+  z-index: 10000;
+  padding: 0.5rem;
+}
+
+.buttons-columnVisibility{
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.dt-button-active{
+  font-weight: bold;
+}
+
+.dataTables_filter input[type="search"]{
+  border: 1px solid var(--color-gray-300) !important;
+  color: var(--color-gray-800) !important;
+  font-size: 0.875rem !important;
+}
+
+.dataTables_length{
+  color: var(--color-gray-800) !important;
+  font-size: 0.875rem !important;
+}
+
+.dataTables_length select{
+  border: 1px solid var(--color-gray-300) !important;
+  color: var(--color-gray-800) !important;
+  font-size: 0.875rem !important;
+}
+
+a.paginate_button{
+  font-size: 0.875rem !important;
+}
+a.paginate_button.current{
+  border: 1px solid oklch(87.2% 0.01 258.338) !important;
+  background: var(--color-gray-100) !important;
+  margin-left: 0 !important;
+  border-radius: 0 !important;
+  color: var(--color-gray-800) !important;
+  font-size: 0.875rem !important;
+}
+
+.dataTables_info{
+  color: var(--color-gray-800) !important;
+  font-size: 0.875rem !important;
+}
+.active{
+  font-weight: bold;
+}

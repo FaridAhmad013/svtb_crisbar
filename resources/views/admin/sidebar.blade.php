@@ -1,9 +1,8 @@
-<nav class="sidenav fixed h-screen w-xs flex justify-center items-center" id="sidenav-main">
-
-  <div class="bg-white h-11/12 w-10/12 rounded-lg">
+<nav class="sidenav h-screen w-full" id="sidenav-main">
+  <div class="bg-white h-full rounded-lg shadow-md">
     <!-- Brand -->
-    <div class="sidenav-header p-5 border-b border-b border-gray-100">
-      <a class="text-xl font-bold tracking-wide text-gray-800 text-center block" href="{{ route('dashboard.index') }}">
+    <div class="sidenav-header p-5 border-b border-b border-gray-100 h-20">
+      <a class="text-xl font-bold tracking-wide text-gray-800 text-center block menu-text" href="{{ route('dashboard.index') }}">
         SVTB CRISBAR
       </a>
     </div>
@@ -24,26 +23,27 @@
                 'Pemilik',
             ])
             ->start_group()
-            ->item('Pengguna', 'fas fa-user', 'admin/manajemen/user', Request::is('admin/manajemen/user'), ['Admin'])
-            ->item('Role', 'fas fa-building', 'admin/manajemen/role', Request::is('admin/manajemen/role'), ['Admin'])
+            ->item('Karyawan', 'fas fa-users', 'admin/manajemen/karyawan', Request::is('admin/manajemen/karyawan'), ['Pemilik'])
+
             ->end_group();
 
         $obj_menu
-            ->divinder('Master', [
-                'Admin',
+            ->divinder('Proses Produksi Harian', [
+                'Karyawan',
             ])
             ->start_group()
-            ->item('Kategori Pertanyaan', 'fas fa-th-large', 'admin/master/kategori_pertanyaan', Request::is('admin/master/kategori_pertanyaan'), ['Admin'])
-            ->item('Pertanyaan', 'fas fa-comments', 'admin/master/pertanyaan', Request::is('admin/master/pertanyaan'), ['Admin'])
+            ->item('Opname (Pre-Production)', 'fas fa-sun', 'admin/proses_produksi_harian/opname_pre_production', Request::is('admin/proses_produksi_harian/opname_pre_production'), ['Karyawan'])
+            ->item('Opname (Post-Production)', 'fas fa-moon', 'admin/proses_produksi_harian/opname_post_production', Request::is('admin/proses_produksi_harian/opname_post_production'), ['Karyawan'])
+            ->item('Catat Hasil Produksi', 'fas fa-box', 'admin/proses_produksi_harian/laporan_produksi', Request::is('admin/proses_produksi_harian/laporan_produksi'), ['Karyawan'])
+
             ->end_group();
 
         $obj_menu
-            ->divinder('Ruang Cerita', [
-                'Pengguna',
+            ->divinder('Laporan', [
+                'Pemilik',
             ])
             ->start_group()
-            ->item('Obrolan', 'fas fa-comments', 'admin/ruang_cerita/obrolan', Request::is('admin/ruang_cerita/obrolan'), ['Pengguna'])
-            ->item('Riwayat Obrolan', 'fas fa-history', 'admin/ruang_cerita/riwayat_obrolan', Request::is('admin/ruang_cerita/riwayat_obrolan'), ['Pengguna'])
+            ->item('Laporan Produksi', 'fas fa-file-alt', 'admin/laporan/laporan_produksi', Request::is('admin/laporan/laporan_produksi'), ['Pemilik'])
             ->end_group();
 
         $menu = $obj_menu->to_html();
