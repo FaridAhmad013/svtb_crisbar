@@ -79,6 +79,7 @@
   </div>
 </body>
 
+<script src="{{ asset('js/autoNumeric.js') }}" type="text/javascript"></script>
 <script src="{{ asset('vendors/noty/noty.js') }}" type="text/javascript"></script>
 <script src="{{ asset('vendors/jquery/jquery-3.7.1.min.js') }}" crossorigin="anonymous"></script>
 <script src="{{ asset('vendors/wizard/jquery.steps.min.js') }}"></script>

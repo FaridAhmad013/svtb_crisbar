@@ -10,6 +10,7 @@ use App\Helpers\ResponseConstant;
 use App\Helpers\Util;
 use App\Models\OpnamePostProduction;
 use App\Models\OpnamePreProduction;
+use App\Models\QtyProduksi;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -24,7 +25,7 @@ class OpnamePreProductionController extends Controller
     function __construct()
     {
         $this->module = 'opname_pre_production';
-        $this->module_name = 'Opname (PRE Production)';
+        $this->module_name = 'Opname (Pre-Production)';
         $this->folder = 'proses_produksi_harian.opname_pre_production';
     }
 
@@ -39,9 +40,9 @@ class OpnamePreProductionController extends Controller
         $icon = "fas fa-sun";
         $module = $this->module;
         $module_name = $this->module_name;
+
         return view('pages.' . $this->folder . '.list', compact('allow', 'group', 'icon', 'module', 'module_name'));
     }
-
     public function sudah_melakukan_opname($date){
         $sudah_melakukan_opname = false;
         $date = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
@@ -58,38 +59,6 @@ class OpnamePreProductionController extends Controller
         ], 200);
     }
 
-
-
-    public function show($id)
-    {
-        try {
-            $auth = AuthCommon::user() ?? null;
-            $data = OpnamePreProduction::where('id', $id)->first();
-            if(!in_array($auth->role->role, ['Karyawan'])) {
-                $body = '<h3>403 | Forbidden</h3>';
-                $footer = '<button type="button" class="px-4 py-2 bg-gray-100 rounded-sm text-sm hover:bg-gray-200 border border-gray-300 transform  transition duration-300" data-dismiss="modal">Tutup</button>';
-            }else{
-                $body = view('pages.'.$this->folder.'.show', compact('data'))->render();
-                $footer = '<button type="button" class="px-4 py-2 bg-gray-100 rounded-sm text-sm hover:bg-gray-200 border border-gray-300 transform  transition duration-300" data-dismiss="modal">Tutup</button>';
-            }
-
-            return [
-                'title' => 'Detail '.$this->module_name,
-                'body' => $body,
-                'footer' => $footer
-            ];
-        } catch (\Throwable $th) {
-            //throw $th;
-
-            return response([
-                "status" => false,
-                "message" => "Bad Request",
-                "data" => [],
-                "error" => $th->getMessage()
-            ], 400);
-        }
-    }
-
     public function create()
     {
         $user = AuthCommon::user();
@@ -103,7 +72,7 @@ class OpnamePreProductionController extends Controller
                 'folder' => $this->folder,
             ])->render();
             $footer = '<button type="button" class="focus:outline-none px-4 py-2 bg-gray-100 rounded-sm text-sm hover:bg-gray-200 border border-gray-300 transform  transition duration-300" data-dismiss="modal">Tutup</button>
-                <button type="button" class="focus:outline-none btn-next px-4 py-2 bg-red-400 disabled:bg-red-300 rounded-sm text-sm font-bold tracking-wide text-white transform  transition duration-300" onclick="save()" disabled>Simpan</button>';
+                <button type="button" class="focus:outline-none btn-next px-4 py-2 bg-red-400 disabled:bg-red-300 rounded-sm text-sm font-bold tracking-wide text-white transform  transition duration-300" onclick="save()" disabled>Simpan Data</button>';
         }
 
         return [
@@ -155,6 +124,13 @@ class OpnamePreProductionController extends Controller
             return $item;
         });
 
+        $catat_hasil_produksi = QtyProduksi::whereDate('tanggal', Carbon::parse($formData['tanggal'])->format('Y-m-d'))->first();
+        if($catat_hasil_produksi){
+            return response([
+                'status' => false,
+                'message' => 'Gagal membuat opname, tanggal '.$catat_hasil_produksi->tanggal.' sudah melakukan catat hasil produksi'
+            ], 400);
+        }
         DB::beginTransaction();
         try{
             for($i = 0; $i < count($formData['data_bahan']); $i++){
@@ -278,85 +254,6 @@ class OpnamePreProductionController extends Controller
         }
     }
 
-    public function edit($id)
-    {
-        try {
-            $data = OpnamePreProduction::findOrFail($id);
-
-            $auth = AuthCommon::user() ?? null;
-             if (!in_array(@$auth->role->role, ['Karyawan'])) {
-                $body = '<h3>403 | Forbidden</h3>';
-                $footer = '<button type="button" class="px-4 py-2 bg-gray-100 rounded-sm text-sm hover:bg-gray-200 border border-gray-300 transform  transition duration-300" data-dismiss="modal">Tutup</button>';
-            } else {
-                $body = view('pages.' . $this->folder . '.edit', [
-                    'id' => $id,
-                    'data' => $data,
-                    'folder' => $this->folder,
-                    'module' => $this->module,
-                    'module_name' => $this->module_name,
-                ])->render();
-                $footer = '<button type="button" class="px-4 py-2 bg-gray-100 rounded-sm text-sm hover:bg-gray-200 border border-gray-300 transform  transition duration-300" data-dismiss="modal">Tutup</button>
-                    <button type="button" class="focus:outline-none btn-next px-4 py-2 bg-red-400 disabled:bg-red-300 rounded-sm text-sm font-bold tracking-wide text-white transform  transition duration-300" onclick="save()">Simpan</button>';
-            }
-
-            return [
-                'title' => 'Edit ' . $this->module_name,
-                'body' => $body,
-                'footer' => $footer
-            ];
-        } catch (\Throwable $th) {
-            return response([
-                "status" => false,
-                "message" => "Bad Request",
-                "data" => [],
-                "error" => $th->getMessage()
-            ], 400);
-        }
-    }
-
-    public function update(Request $request, $id)
-    {
-        $auth = AuthCommon::user() ?? null;
-        if (!in_array(@$auth->role->role, ['Karyawan'])) {
-            return response([
-                'status' => false,
-                'message' => '403 | Forbidden'
-            ], 400);
-        }
-
-        $rules = [
-            'nama_karyawan' => 'required',
-        ];
-
-        $message = [
-            'nama_karyawan.required' => 'Kolom Nama Karyawan tidak boleh kosong',
-        ];
-
-        $request->validate($rules, $message);
-
-        $formData = $request->only([
-            'nama_karyawan',
-        ]);
-
-        try {
-            OpnamePreProduction::where('id', $id)->update($formData);
-
-            return response([
-                "status" => true,
-                "message" => ResponseConstant::RM_UPDATE_SUCCESS,
-                "data" => isset($run->data) ? $run->data : null
-            ], 200);
-        } catch (\Throwable $th) {
-            //throw $th;
-             return response([
-                "status" => false,
-                "message" => ResponseConstant::RM_UPDATE_FAILED,
-                "data" => []
-            ], 400);
-        }
-
-    }
-
     public function destroy($id)
     {
         $auth = AuthCommon::user() ?? null;
@@ -368,6 +265,15 @@ class OpnamePreProductionController extends Controller
         }
 
         try {
+            $opname = OpnamePreProduction::find($id);
+
+            $catat_hasil_produksi = QtyProduksi::whereDate('tanggal', Carbon::parse($opname->tanggal)->format('Y-m-d'))->first();
+            if($catat_hasil_produksi){
+                return response([
+                    'status' => false,
+                    'message' => 'Gagal membuat opname, tanggal '.$catat_hasil_produksi->tanggal.' sudah melakukan catat hasil produksi'
+                ], 400);
+            }
             OpnamePreProduction::where('id', $id)->delete();
 
             return response([

@@ -22,7 +22,7 @@ class OpnamePostProductionController extends Controller
     function __construct()
     {
         $this->module = 'opname_post_production';
-        $this->module_name = 'Opname (Post Production)';
+        $this->module_name = 'Opname (Post-Production)';
         $this->folder = 'proses_produksi_harian.opname_post_production';
     }
 
@@ -55,62 +55,6 @@ class OpnamePostProductionController extends Controller
             'sudah_melakukan_opname' => $sudah_melakukan_opname
         ], 200);
     }
-
-
-
-    public function show($id)
-    {
-        try {
-            $auth = AuthCommon::user() ?? null;
-            $data = OpnamePostProduction::where('id', $id)->first();
-            if(!in_array($auth->role->role, ['Karyawan'])) {
-                $body = '<h3>403 | Forbidden</h3>';
-                $footer = '<button type="button" class="px-4 py-2 bg-gray-100 rounded-sm text-sm hover:bg-gray-200 border border-gray-300 transform  transition duration-300" data-dismiss="modal">Tutup</button>';
-            }else{
-                $body = view('pages.'.$this->folder.'.show', compact('data'))->render();
-                $footer = '<button type="button" class="px-4 py-2 bg-gray-100 rounded-sm text-sm hover:bg-gray-200 border border-gray-300 transform  transition duration-300" data-dismiss="modal">Tutup</button>';
-            }
-
-            return [
-                'title' => 'Detail '.$this->module_name,
-                'body' => $body,
-                'footer' => $footer
-            ];
-        } catch (\Throwable $th) {
-            //throw $th;
-
-            return response([
-                "status" => false,
-                "message" => "Bad Request",
-                "data" => [],
-                "error" => $th->getMessage()
-            ], 400);
-        }
-    }
-
-    public function create()
-    {
-        $user = AuthCommon::user();
-        if (!in_Array(@$user->role->role, ['Karyawan'])) {
-            $body = '<h3>403 | Forbidden</h3>';
-            $footer = '<button type="button" class="px-4 py-2 bg-gray-100 rounded-sm text-sm hover:bg-gray-200 border border-gray-300 transform  transition duration-300" data-dismiss="modal">Tutup</button>';
-        } else {
-            $body = view('pages.' . $this->folder . '.create', [
-                'module' => $this->module,
-                'module_name' => $this->module_name,
-                'folder' => $this->folder,
-            ])->render();
-            $footer = '<button type="button" class="focus:outline-none px-4 py-2 bg-gray-100 rounded-sm text-sm hover:bg-gray-200 border border-gray-300 transform  transition duration-300" data-dismiss="modal">Tutup</button>
-                <button type="button" class="focus:outline-none btn-next px-4 py-2 bg-red-400 disabled:bg-red-300 rounded-sm text-sm font-bold tracking-wide text-white transform  transition duration-300" onclick="save()" disabled>Simpan</button>';
-        }
-
-        return [
-            'title' => 'Tambah '.$this->module_name,
-            'body' => $body,
-            'footer' => $footer
-        ];
-    }
-
 
     public function store(Request $request)
     {
@@ -175,167 +119,39 @@ class OpnamePostProductionController extends Controller
         }
     }
 
-    public function preview(Request $request)
+
+    public function handle_update_qty(Request $request, $id)
     {
-        // Validasi awal untuk file upload
-        $rules = [ 'upload_file' => 'required|file|mimes:csv,txt' ];
-        $message = [
-            'upload_file.required' => 'Kolom File tidak boleh kosong',
-            'upload_file.file' => 'Kolom File harus berupa file',
-            'upload_file.mimes' => 'Kolom File harus berupa file dengan ekstensi .csv atau .txt',
-        ];
-        // Menggunakan Validator::make agar bisa mengembalikan response JSON kustom
-        $validator = Validator::make($request->all(), $rules, $message);
-        if ($validator->fails()) {
-            return response()->json(['status' => false, 'message' => $validator->errors()->first(), 'data' => null], 422);
-        }
-
-        try {
-            $file = $request->file('upload_file');
-            $path = $file->getRealPath();
-            $file_handle = fopen($path, 'r');
-
-            // 1. Validasi Header
-            $header = fgetcsv($file_handle, 1000, ',');
-            $requiredHeader = ['nama_bahan', 'qty', 'satuan', 'nilai_rupiah'];
-
-            if ($header !== $requiredHeader) {
-                fclose($file_handle);
-                return response()->json([
-                    'status'  => false,
-                    'message' => 'Struktur header CSV tidak sesuai. Pastikan urutannya adalah: nama_bahan,qty,satuan,nilai_rupiah',
-                    'data'    => null
-                ], 400);
-            }
-
-            $data = [];
-            $rowNumber = 1; // Untuk melacak baris jika ada error
-
-            // 2. Looping, Validasi per Baris, dan Konversi Data
-            while (($row = fgetcsv($file_handle, 1000, ',')) !== FALSE) {
-                if (count($row) !== count($header)) {
-                     return response()->json([
-                        'status'  => false,
-                        'message' => "Data tidak valid pada baris ke-{$rowNumber}: Jumlah kolom tidak sesuai dengan header.",
-                        'data'    => null
-                    ], 400);
-                }
-
-                $rowData = array_combine($header, $row);
-
-                // Konversi dan validasi nilai_rupiah
-                $nilai_rupiah_str = $rowData['nilai_rupiah'];
-                $cleaned_nilai_rupiah = (int) preg_replace('/[^\d]/', '', $nilai_rupiah_str);
-
-                // Konversi dan validasi qty
-                $qty_str = str_replace(',', '.', $rowData['qty']); // Ganti koma jadi titik untuk desimal
-                if (!is_numeric($qty_str) || (float)$qty_str < 0) {
-                    fclose($file_handle);
-                    return response()->json([
-                        'status'  => false,
-                        'message' => "Data tidak valid pada baris ke-{$rowNumber}: QTY '{$rowData['qty']}' harus berupa angka dan tidak boleh kurang dari 0.",
-                        'data'    => null
-                    ], 400);
-                }
-                $cleaned_qty = (float) $qty_str;
-
-                // Memasukkan data yang sudah bersih ke array
-                $data[] = [
-                    'nama_bahan' => trim($rowData['nama_bahan']),
-                    'qty' => $cleaned_qty,
-                    'satuan' => trim($rowData['satuan']),
-                    'nilai_rupiah' => $cleaned_nilai_rupiah,
-                ];
-
-                $rowNumber++;
-            }
-
-            fclose($file_handle);
-
-            if (empty($data)) {
-                return response()->json([
-                    'status'  => false,
-                    'message' => 'File CSV yang Anda unggah tidak berisi data.',
-                    'data'    => []
-                ], 400);
-            }
-
-            return response()->json([
-                'status'  => true,
-                'message' => 'Preview data berhasil dimuat.',
-                'data'    => $data
-            ], 200);
-
-        } catch (Exception $th) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Terjadi kesalahan saat memproses file: ' . $th->getMessage(),
-                'data'    => null
-            ], 500);
-        }
-    }
-
-    public function edit($id)
-    {
-        try {
-            $data = OpnamePostProduction::findOrFail($id);
-
-            $auth = AuthCommon::user() ?? null;
-             if (!in_array(@$auth->role->role, ['Karyawan'])) {
-                $body = '<h3>403 | Forbidden</h3>';
-                $footer = '<button type="button" class="px-4 py-2 bg-gray-100 rounded-sm text-sm hover:bg-gray-200 border border-gray-300 transform  transition duration-300" data-dismiss="modal">Tutup</button>';
-            } else {
-                $body = view('pages.' . $this->folder . '.edit', [
-                    'id' => $id,
-                    'data' => $data,
-                    'folder' => $this->folder,
-                    'module' => $this->module,
-                    'module_name' => $this->module_name,
-                ])->render();
-                $footer = '<button type="button" class="px-4 py-2 bg-gray-100 rounded-sm text-sm hover:bg-gray-200 border border-gray-300 transform  transition duration-300" data-dismiss="modal">Tutup</button>
-                    <button type="button" class="focus:outline-none btn-next px-4 py-2 bg-red-400 disabled:bg-red-300 rounded-sm text-sm font-bold tracking-wide text-white transform  transition duration-300" onclick="save()">Simpan</button>';
-            }
-
-            return [
-                'title' => 'Edit ' . $this->module_name,
-                'body' => $body,
-                'footer' => $footer
-            ];
-        } catch (\Throwable $th) {
-            return response([
-                "status" => false,
-                "message" => "Bad Request",
-                "data" => [],
-                "error" => $th->getMessage()
-            ], 400);
-        }
-    }
-
-    public function update(Request $request, $id)
-    {
-        $auth = AuthCommon::user() ?? null;
-        if (!in_array(@$auth->role->role, ['Karyawan'])) {
-            return response([
-                'status' => false,
-                'message' => '403 | Forbidden'
-            ], 400);
-        }
 
         $rules = [
-            'nama_karyawan' => 'required',
+            'qty' => 'required',
         ];
 
         $message = [
-            'nama_karyawan.required' => 'Kolom Nama Karyawan tidak boleh kosong',
+            'qty.required' => 'Kolom QTY tidak boleh kosong',
         ];
 
         $request->validate($rules, $message);
 
         $formData = $request->only([
-            'nama_karyawan',
+            'qty',
         ]);
 
+
+        $formData['qty'] = (int) Util::removeSeperator($formData['qty']);
         try {
+            $run = OpnamePostProduction::where('id', $id)->first();
+
+            if(!$run){
+                return response([
+                    "status" => false,
+                    "message" => ResponseConstant::RM_UPDATE_FAILED,
+                    "data" => []
+                ], 400);
+            }
+
+            $formData['nilai_persatuan'] = $run->nilai_rupiah/$formData['qty'];
+
             OpnamePostProduction::where('id', $id)->update($formData);
 
             return response([

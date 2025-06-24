@@ -74,7 +74,7 @@ Pastikan perangkat Anda telah terpasang:
 6.  **Install & Build Aset Frontend**
     Perintah ini akan menginstall dependency JavaScript dan mengkompilasi aset (CSS/JS) untuk aplikasi.
     ```bash
-    npm install
+    npm install --save-dev vite
     npm run build
     ```
 

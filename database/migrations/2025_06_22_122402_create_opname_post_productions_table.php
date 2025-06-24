@@ -16,8 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('karyawan_id');
             $table->foreign('karyawan_id')->references('id')->on('karyawans')->onDelete('cascade');
             $table->timestamp('tanggal')->default(now());
-            $table->string('nama_produk', 30);
-            $table->string('nama_bahan', 30);
+            $table->string('nama_produk', 255);
+            $table->string('nama_bahan', 255);
             $table->decimal('qty')->default(0);
             $table->string('satuan', 5)->nullable();
             $table->decimal('nilai_rupiah')->default(0);

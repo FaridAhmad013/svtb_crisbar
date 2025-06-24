@@ -26,24 +26,35 @@
       <div class="px-5 py-7 overflow-auto" id="box-aw">
         @include('admin.alert')
 
-        <div class="my-3 p-3 bg-cyan-300 text-white text-sm rounded-lg leading-[1.5] tracking-wide w-full font-bold" id="sudah_melakukan_opname_container" style="display: none">
+        <div class="my-3 p-3 bg-rose-300 text-white text-sm rounded-lg leading-[1.5] tracking-wide w-full font-bold" id="sudah_melakukan_opname_container" style="display: none">
 
         </div>
 
-        <div class="mb-5">
-          <label for="Tanggal" class="mb-1 block text-sm text-gray-700">Tanggal</label>
-          <input type="date" id="tanggal" class="w-full rounded-md border border-gray-300 text-gray-700 tracking-wide focus:outline-none px-2 py-3 text-sm">
+        <div class="border-b border-gray-300 mt-3 mb-10">
+          <h3 class="font-bold text-md"><i class="fas fa-filter"></i> Filter</h3>
+          <div class="mb-5">
+            <label for="Tanggal" class="mb-1 block text-sm text-gray-700">Tanggal</label>
+            <input type="date" id="tanggal" class="w-full rounded-md border border-gray-300 text-gray-700 tracking-wide focus:outline-none px-2 py-3 text-sm">
+          </div>
+
+          <div class="mb-5">
+            <label for="nama_produk" class="mb-1 block text-sm text-gray-700">Nama Produk</label>
+            <input type="text" id="nama_produk" class="w-full rounded-md border border-gray-300 text-gray-700 tracking-wide focus:outline-none px-2 py-3 text-sm bg-gray-100" disabled>
+          </div>
         </div>
 
+        <div class="my-3 p-3 bg-emerald-300 text-white text-sm rounded-lg leading-[1.5] tracking-wide w-full font-bold" id="catat_hasil_produksi_container" style="display: none">
+         <i class="fas fa-info-circle"></i> Pencatatan Hasil Produksi untuk hari ini sudah selesai.
+        </div>
         <div class="relative">
           <table class="text-left w-full dt-wow">
             <thead>
               <tr>
                 <th class="px-6 py-3 text-gray-400 font-light min-w-46">Tanggal</th>
-                <th class="px-6 py-3 text-gray-400 font-light min-w-46">Nama Bahan</th>
                 <th class="px-6 py-3 text-gray-400 font-light min-w-46">Nama Produk</th>
-                <th class="px-6 py-3 text-gray-400 font-light min-w-46">QTY</th>
-                <th class="px-6 py-3 text-gray-400 font-light min-w-46">Satuan</th>
+                <th class="px-6 py-3 text-gray-400 font-light min-w-46">Nama Bahan</th>
+                <th class="px-6 py-3 text-gray-400 font-light min-w-20">QTY</th>
+                <th class="px-6 py-3 text-gray-400 font-light">Satuan</th>
                 <th class="px-6 py-3 text-gray-400 font-light min-w-46">Nilai Rupiah</th>
                 <th class="px-6 py-3 text-gray-400 font-light min-w-46">Nilai Persatuan</th>
                 <th class="px-6 py-3 text-gray-400 font-light min-w-46">Nama Karyawan</th>
@@ -64,15 +75,14 @@
 <script>
   let _url = {
     datatable: `{{ route('datatable.'.$module) }}`,
-    edit: `{{ route($module.'.edit', ':id') }}`,
-    show: `{{ route($module.'.show', ':id') }}`,
-    delete: `{{ route($module.'.destroy', ':id') }}`,
-    sudah_melakukan_opname_pre_production: `{{ route('opname_pre_production.sudah_melakukan_opname', ':date') }}`,
     sudah_melakukan_opname: `{{ route($module.'.sudah_melakukan_opname', ':date') }}`,
-    preview: `{{ route($module.'.preview') }}`
+    handle_update_qty: `{{ route($module.'.handle_update_qty', ':id') }}`,
+    check_sudah_melakukan_catat_hasil_produksi: `{{ route('catat_hasil_produksi.check_sudah_melakukan_catat_hasil_produksi', ':date') }}`,
   }
 
   let data_bahan = []
+  let check_sudah_melakukan_catat_hasil_produksi_bool = false
+
 
   let table;
   let _limit = 10;
@@ -84,11 +94,12 @@
       maxDate: 'today',
       defaultDate: 'today',
       onChange: function(selectedDates, dateStr, instance) {
-        sudah_melakukan_opname_pre_production()
+        sudah_melakukan_opname()
+        table.draw()
       }
     })
 
-    sudah_melakukan_opname_pre_production()
+    sudah_melakukan_opname()
     let dt_buttons = [
       {
         extend: 'colvis',
@@ -130,7 +141,11 @@
         },
         {
           data: 'nama_produk',
-          className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200'
+          className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200',
+          render: function (data, type, row) {
+            $('#nama_produk').val(data)
+            return data
+          },
         },
         {
           data: 'nama_bahan',
@@ -138,8 +153,10 @@
         },
         {
           data: 'qty',
-          className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200'
-        },
+          className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200',
+          render: function (data, type, row) {
+            return `<input type="text" name="qty" class="w-full rounded-md border border-gray-300 text-gray-700 tracking-wide focus:outline-none px-2 py-3 text-sm qty-input"  data-id="${row.id}" value="${data}">`;          }
+          },
         {
           data: 'satuan',
           className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200'
@@ -165,28 +182,78 @@
           className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200'
         },
       ],
+      drawCallback: function(settings) {
+        const qtyInputs = document.querySelectorAll('.qty-input:not(.autonumeric-initialized)');
+
+        qtyInputs.forEach((input) => {
+
+          const anInput = new AutoNumeric(input, {
+              digitGroupSeparator: '.',
+              decimalCharacter: ',',
+              decimalCharacterAlternative: '.',
+              minimumValue: '0',
+              decimalPlaces: 2,
+              unformatOnSubmit: true,
+          });
+
+          // Tambahkan event listener saat user selesai mengedit (keluar dari input)
+          input.addEventListener('focusout', function() {
+              const id = this.getAttribute('data-id');
+              // Panggil fungsi handle_update_qty dengan nilai numerik
+              handle_update_qty(id, anInput.getNumericString());
+          });
+
+          // Tandai bahwa input ini sudah diinisialisasi untuk mencegah inisialisasi ganda
+          input.classList.add('autonumeric-initialized');
+        });
+      },
+      onInitComplete: function (settings, json) {
+        check_sudah_melakukan_catat_hasil_produksi()
+      },
       scrollY: (Ryuna.heightWindow() <= 660 ? 500 : (Ryuna.heightWindow() - 426)),
       scrollX: true
     });
+
+    check_sudah_melakukan_catat_hasil_produksi()
   })
 
-  function sudah_melakukan_opname_pre_production(){
+  function check_sudah_melakukan_catat_hasil_produksi(){
     const date = $('#tanggal').val()
-    $('#create').hide()
-    $('#sudah_melakukan_opname_container').hide()
-    $.get(_url.sudah_melakukan_opname_pre_production.replace(':date', date)).done((res) => {
-      $('#sudah_melakukan_opname_container').hide()
-      if(!res.sudah_melakukan_opname_pre_production){
-        $('#create').show()
-        $('#sudah_melakukan_opname_container').show()
-        $('#sudah_melakukan_opname_container').html('Opname Pre Production Belum Dilakukan')
-      } else {
-        sudah_melakukan_opname()
+
+    $.get(_url.check_sudah_melakukan_catat_hasil_produksi.replace(':date', date)).done((res) => {
+      check_sudah_melakukan_catat_hasil_produksi_bool = res.catat_hasil_produksi
+
+
+      if(check_sudah_melakukan_catat_hasil_produksi_bool){
+        $('#catat_hasil_produksi_container').show()
+        $('.qty-input').attr('disabled', true)
       }
     }).fail((xhr) => {
       console.log('gagal get sudah melakukan opname')
     })
   }
+
+  function handle_update_qty(id, newValue) {
+
+    if(!check_sudah_melakukan_catat_hasil_produksi_bool){
+        $.ajax({
+            url: _url.handle_update_qty.replace(':id', id),
+            type: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                qty: newValue
+            },
+            success: function(response) {
+              Ryuna.noty('success', '', 'Kuantitas berhasil diperbarui!');
+              table.draw()
+            },
+            error: function(xhr) {
+              Ryuna.noty('error', '', 'Gagal memperbarui kuantitas.');
+            }
+        });
+    }
+  }
+
 
   function sudah_melakukan_opname(){
     const date = $('#tanggal').val()
@@ -196,7 +263,7 @@
       if(!res.sudah_melakukan_opname){
         $('#create').show()
         $('#sudah_melakukan_opname_container').show()
-        $('#sudah_melakukan_opname_container').html('Opname Post Production Belum Dilakukan')
+        $('#sudah_melakukan_opname_container').html('<i class="fas fa-exclamation-triangle"></i> Opname Post Production Belum Dilakukan')
       }
     }).fail((xhr) => {
       console.log('gagal get sudah melakukan opname')
@@ -281,7 +348,7 @@
       type: 'POST',
     }).done((res) => {
       if(res?.status == true){
-        let html = '<div class="mb-3 p-3 bg-green-300 text-white text-sm rounded-lg leading-[1.5] tracking-wide w-full">'
+        let html = '<div class="mb-3 p-3 bg-emerald-300 text-white text-sm rounded-lg leading-[1.5] tracking-wide w-full">'
         html += `${res?.message}`
         html += '</div>'
         Ryuna.noty('success', '', res?.message)
@@ -289,7 +356,7 @@
 
         table.draw()
 
-        sudah_melakukan_opname_pre_production( )
+        sudah_melakukan_opname()
         setTimeout(() => {
           $('.btn-next').attr('disabled', false);
         //   Ryuna.close_modal()

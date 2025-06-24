@@ -26,15 +26,26 @@
       <div class="px-5 py-7 overflow-auto" id="box-aw">
         @include('admin.alert')
 
-        <div class="my-3 p-3 bg-cyan-300 text-white text-sm rounded-lg leading-[1.5] tracking-wide w-full font-bold" id="sudah_melakukan_opname_container" style="display: none">
+        <div class="my-3 p-3 bg-rose-300 text-white text-sm rounded-lg leading-[1.5] tracking-wide w-full font-bold" id="sudah_melakukan_opname_container" style="display: none">
 
         </div>
 
-        <div class="mb-5">
-          <label for="Tanggal" class="mb-1 block text-sm text-gray-700">Tanggal</label>
-          <input type="date" id="tanggal" class="w-full rounded-md border border-gray-300 text-gray-700 tracking-wide focus:outline-none px-2 py-3 text-sm">
+        <div class="border-b border-gray-300 mt-3 mb-10">
+          <h3 class="font-bold text-md"><i class="fas fa-filter"></i> Filter</h3>
+          <div class="mb-5">
+            <label for="Tanggal" class="mb-1 block text-sm text-gray-700">Tanggal</label>
+            <input type="date" id="tanggal" class="w-full rounded-md border border-gray-300 text-gray-700 tracking-wide focus:outline-none px-2 py-3 text-sm">
+          </div>
+
+          <div class="mb-5">
+            <label for="nama_produk" class="mb-1 block text-sm text-gray-700">Nama Produk</label>
+            <input type="text" id="nama_produk" class="w-full rounded-md border border-gray-300 text-gray-700 tracking-wide focus:outline-none px-2 py-3 text-sm bg-gray-100" disabled>
+          </div>
         </div>
 
+        <div class="my-3 p-3 bg-emerald-300 text-white text-sm rounded-lg leading-[1.5] tracking-wide w-full font-bold" id="catat_hasil_produksi_container" style="display: none">
+         <i class="fas fa-info-circle"></i> Pencatatan Hasil Produksi untuk hari ini sudah selesai.
+        </div>
         <div class="relative">
           <table class="text-left w-full dt-wow">
             <thead>
@@ -66,14 +77,17 @@
   let _url = {
     datatable: `{{ route('datatable.'.$module) }}`,
     create: `{{ route($module.'.create') }}`,
-    edit: `{{ route($module.'.edit', ':id') }}`,
-    show: `{{ route($module.'.show', ':id') }}`,
     delete: `{{ route($module.'.destroy', ':id') }}`,
     sudah_melakukan_opname: `{{ route($module.'.sudah_melakukan_opname', ':date') }}`,
-    preview: `{{ route($module.'.preview') }}`
+    preview: `{{ route($module.'.preview') }}`,
+    check_sudah_melakukan_catat_hasil_produksi: `{{ route('catat_hasil_produksi.check_sudah_melakukan_catat_hasil_produksi', ':date') }}`,
   }
 
+  let nama_produk = ''
+
   let data_bahan = []
+
+  let check_sudah_melakukan_catat_hasil_produksi_bool = false
 
   let table;
   let _limit = 10;
@@ -86,6 +100,7 @@
       defaultDate: 'today',
       onChange: function(selectedDates, dateStr, instance) {
         sudah_melakukan_opname()
+        table.draw()
       }
     })
 
@@ -100,13 +115,15 @@
       }
     ];
 
-    dt_buttons.unshift( {
-      text: '<i class="fas fa-plus"></i> Tambah',
-      attr: { id: 'create' },
-      action: function(e, dt, node, config ) {
-        create()
-      }
-    })
+    if(!check_sudah_melakukan_catat_hasil_produksi_bool){
+        dt_buttons.unshift( {
+          text: '<i class="fas fa-plus"></i> Tambah',
+          attr: { id: 'create' },
+          action: function(e, dt, node, config ) {
+            create()
+          }
+        })
+    }
 
     table = $(".dt-wow").DataTable({
       language: {
@@ -135,7 +152,7 @@
       columns: [
         {
           data: 'aksi',
-          className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200 text-center'
+          className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200 text-center',
         },
         {
           data: 'tanggal',
@@ -143,7 +160,12 @@
         },
         {
           data: 'nama_produk',
-          className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200'
+          className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200',
+          render: function (data, type, row) {
+            $('#nama_produk').val(data)
+            nama_produk = data
+            return data
+          }
         },
         {
           data: 'nama_bahan',
@@ -178,21 +200,42 @@
           className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200'
         },
       ],
+      onInitComplete: function (settings, json) {
+        check_sudah_melakukan_catat_hasil_produksi()
+      },
       scrollY: (Ryuna.heightWindow() <= 660 ? 500 : (Ryuna.heightWindow() - 426)),
       scrollX: true
     });
+
+    check_sudah_melakukan_catat_hasil_produksi()
   })
 
   function sudah_melakukan_opname(){
     const date = $('#tanggal').val()
-    $('#create').hide()
+
     $('#sudah_melakukan_opname_container').hide()
     $.get(_url.sudah_melakukan_opname.replace(':date', date)).done((res) => {
       $('#sudah_melakukan_opname_container').hide()
       if(!res.sudah_melakukan_opname){
-        $('#create').show()
         $('#sudah_melakukan_opname_container').show()
-        $('#sudah_melakukan_opname_container').html('Opname Pre Production Belum Dilakukan')
+        $('#sudah_melakukan_opname_container').html('<i class="fas fa-exclamation-triangle"></i> Opname Pre Production Belum Dilakukan')
+      }
+    }).fail((xhr) => {
+      console.log('gagal get sudah melakukan opname')
+    })
+  }
+
+  function check_sudah_melakukan_catat_hasil_produksi(){
+    const date = $('#tanggal').val()
+
+    $.get(_url.check_sudah_melakukan_catat_hasil_produksi.replace(':date', date)).done((res) => {
+      check_sudah_melakukan_catat_hasil_produksi_bool = res.catat_hasil_produksi
+
+
+      if(check_sudah_melakukan_catat_hasil_produksi_bool){
+        $('#catat_hasil_produksi_container').show()
+        $('#create').hide()
+        $('.group-aksi').hide()
       }
     }).fail((xhr) => {
       console.log('gagal get sudah melakukan opname')
@@ -209,6 +252,14 @@
       })
       Ryuna.large_modal()
       Ryuna.unblockUI()
+      $('[name="nama_produk"]').attr('disabled', false)
+
+      setTimeout(() => {
+        if(nama_produk != ''){
+          $('[name="nama_produk"]').val(nama_produk)
+          $('[name="nama_produk"]').attr('disabled', true)
+        }
+      }, 500);
     }).fail((xhr) => {
       Ryuna.unblockUI()
       Swal.fire({
@@ -267,6 +318,7 @@
     let el_form = $('#myForm')
     let target = el_form.attr('action')
     let formData = new FormData(el_form[0])
+    if(nama_produk != '') formData.append('nama_produk', nama_produk)
     formData.append('data_bahan', JSON.stringify(data_bahan))
 
     $.ajax({
@@ -277,18 +329,12 @@
       type: 'POST',
     }).done((res) => {
       if(res?.status == true){
-        let html = '<div class="mb-3 p-3 bg-green-300 text-white text-sm rounded-lg leading-[1.5] tracking-wide w-full">'
-        html += `${res?.message}`
-        html += '</div>'
         Ryuna.noty('success', '', res?.message)
-        $('#response_container').html(html)
-
         table.draw()
-
-        sudah_melakukan_opname( )
         setTimeout(() => {
           $('.btn-next').attr('disabled', false);
-        //   Ryuna.close_modal()
+          sudah_melakukan_opname()
+          Ryuna.close_modal()
         }, 3000);
       }
     }).fail((xhr) => {
@@ -347,8 +393,8 @@
               <td class="px-6 text-left py-3 font-medium text-sm text-gray-600 antialiased tracking-wide text-nowrap border-b border-gray-200">${item.nama_bahan}</td>
               <td class="px-6 text-left py-3 font-medium text-sm text-gray-600 antialiased tracking-wide text-nowrap border-b border-gray-200 text-center">${item.qty}</td>
               <td class="px-6 text-left py-3 font-medium text-sm text-gray-600 antialiased tracking-wide text-nowrap border-b border-gray-200 text-center">${item.satuan}</td>
-              <td class="px-6 text-left py-3 font-medium text-sm text-gray-600 antialiased tracking-wide text-nowrap border-b border-gray-200 text-right">${Ryuna.format_nominal(item.nilai_rupiah)}</td>
-              <td class="px-6 text-left py-3 font-medium text-sm text-gray-600 antialiased tracking-wide text-nowrap border-b border-gray-200 text-right">${Ryuna.format_nominal(nilai_per_satuan)}</td>
+              <td class="px-6 text-left py-3 font-medium text-sm text-gray-600 antialiased tracking-wide text-nowrap border-b border-gray-200">${Ryuna.format_nominal(item.nilai_rupiah)}</td>
+              <td class="px-6 text-left py-3 font-medium text-sm text-gray-600 antialiased tracking-wide text-nowrap border-b border-gray-200">${Ryuna.format_nominal(nilai_per_satuan)}</td>
             </tr>
           `)
         })

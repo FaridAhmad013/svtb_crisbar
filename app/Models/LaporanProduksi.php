@@ -8,9 +8,9 @@ class LaporanProduksi extends Model
 {
     protected $fillable = [
         'tanggal',
+        'nama_produk',
         'qty',
         'nilai_bahan',
         'nilai_laporan_per_produksi',
-        'nama_produk',
     ];
 }

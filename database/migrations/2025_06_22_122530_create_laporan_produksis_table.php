@@ -17,7 +17,7 @@ return new class extends Migration
             $table->double('qty')->default(0);
             $table->double('nilai_bahan')->default(0);
             $table->double('nilai_laporan_per_produksi')->default(0);
-            $table->string('nama_produk', 30);
+            $table->string('nama_produk', 255);
             $table->timestamps();
         });
     }

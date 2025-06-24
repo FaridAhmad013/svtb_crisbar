@@ -265,7 +265,7 @@
       type: 'POST',
     }).done((res) => {
       if(res?.status == true){
-        let html = '<div class="mb-3 p-3 bg-green-300 text-white text-sm rounded-lg leading-[1.5] tracking-wide w-full">'
+        let html = '<div class="mb-3 p-3 bg-emerald-300 text-white text-sm rounded-lg leading-[1.5] tracking-wide w-full">'
         html += `${res?.message}`
         html += '</div>'
         Ryuna.noty('success', '', res?.message)

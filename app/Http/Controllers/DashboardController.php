@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Helpers\AuthCommon;
 use App\Helpers\ResponseConstant;
+use App\Models\OpnamePostProduction;
+use App\Models\OpnamePreProduction;
+use App\Models\QtyProduksi;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -32,7 +35,33 @@ class DashboardController extends Controller
             return view('pages.dashboard.pemilik', compact('role', 'ucapan'));
         }
 
-        return view('pages.dashboard.karyawan', compact('role', 'ucapan'));
+
+        $date = Carbon::now()->format('Y-m-d');
+        $pre_production = OpnamePreProduction::whereDate('tanggal', $date)->first();
+        $sudah_melakukan_opname_pre_production = false;
+        try {
+            $sudah_melakukan_opname_pre_production = $pre_production ? true : false;
+        } catch (\Throwable $th) {
+            $sudah_melakukan_opname_pre_production = false;
+        }
+
+
+        $sudah_melakukan_opname_post_production = false;
+        try {
+            $sudah_melakukan_opname_post_production = OpnamePostProduction::whereDate('tanggal', $date)->first() ? true : false;
+        } catch (\Throwable $th) {
+            $sudah_melakukan_opname_post_production = false;
+        }
+
+        $catat_hasil_produksi = false;
+        try {
+            $catat_hasil_produksi = QtyProduksi::whereDate('tanggal', $date)->first() ? true : false;
+        } catch (\Throwable $th) {
+            $catat_hasil_produksi = false;
+        }
+
+        $nama_produk = @$pre_production->nama_produk;
+        return view('pages.dashboard.karyawan', compact('role', 'ucapan', 'sudah_melakukan_opname_pre_production', 'sudah_melakukan_opname_post_production', 'catat_hasil_produksi', 'nama_produk'));
     }
 
     public function get_total_pengguna(){

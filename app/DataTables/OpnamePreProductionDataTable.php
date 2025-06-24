@@ -23,9 +23,9 @@ class OpnamePreProductionDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('aksi', function ($data) {
-                $html = '<div class="relative inline-flex bg-gray-800 text-white rounded-lg text-center" branch="group">';
+                $html = '<div class="relative inline-flex bg-gray-800 text-white rounded-lg text-center group-aksi" branch="group">';
                 // $html .= '<button onclick="edit('.$data->id.')" type="button" class="text-xs p-2 cursor-pointer" title="Ubah"><i class="fas fa-pen"></i></button>';
-                $html .= '<button onclick="destroy('.$data->id.')" type="button" class="ml-1 text-xs p-2 cursor-pointer" title="Hapus"><i class="fas fa-trash"></i></button>';
+                $html .= '<button onclick="destroy('.$data->id.')" type="button" class="mx-1 text-xs p-2 cursor-pointer" title="Hapus"><i class="fas fa-trash"></i></button>';
                 $html .= '</div>';
                 return $html;
             })
@@ -64,7 +64,15 @@ class OpnamePreProductionDataTable extends DataTable
      */
     public function query(OpnamePreProduction $model): QueryBuilder
     {
-        return $model->newQuery()->with('karyawan');
+        $query = $model->newQuery()->with('karyawan');
+
+        $request = request();
+
+        if(@$request['search']['tanggal']){
+            $query->whereDate('tanggal', Carbon::createFromFormat('d-m-Y', $request['search']['tanggal']));
+        }
+
+        return $query;
     }
 
     /**

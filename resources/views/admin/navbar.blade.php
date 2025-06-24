@@ -5,7 +5,10 @@
     </div>
     <div class="flex items-center cursor-pointer" id="navbar-button-dropdown">
       <img src="{{ asset('img/user.png') }}" alt="Farid Ahmad Fadhilah" class="w-10 h-10 rounded-full object-cover">
-      <div class="text-gray-700 tracking-wide ml-2">Farid Ahmad Fadhilah</div>
+      @php
+          $user_navbar = App\Helpers\AuthCommon::user();
+      @endphp
+      <div class="text-gray-700 tracking-wide ml-2">{{ @$user_navbar->nama_depan.' '.@$user_navbar->nama_belakang }}</div>
     </div>
   </div>
   <div id="navbar-dropdown" style="display: none" class="absolute right-0 z-10 min-w-44 mt-2 mr-3 rounded-md shadow-sm bg-white border border-gray-300">

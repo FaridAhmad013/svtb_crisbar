@@ -34,7 +34,7 @@
             ->start_group()
             ->item('Opname (Pre-Production)', 'fas fa-sun', 'admin/proses_produksi_harian/opname_pre_production', Request::is('admin/proses_produksi_harian/opname_pre_production'), ['Karyawan'])
             ->item('Opname (Post-Production)', 'fas fa-moon', 'admin/proses_produksi_harian/opname_post_production', Request::is('admin/proses_produksi_harian/opname_post_production'), ['Karyawan'])
-            ->item('Catat Hasil Produksi', 'fas fa-box', 'admin/proses_produksi_harian/laporan_produksi', Request::is('admin/proses_produksi_harian/laporan_produksi'), ['Karyawan'])
+            ->item('Catat Hasil Produksi', 'fas fa-box', 'admin/proses_produksi_harian/catat_hasil_produksi', Request::is('admin/proses_produksi_harian/catat_hasil_produksi'), ['Karyawan'])
 
             ->end_group();
 
