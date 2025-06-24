@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Karyawan;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -30,7 +31,8 @@ class UserSeeder extends Seeder
 
         if(!User::where('email', 'karyawan@gmail.com')->first()){
             // id, username, password, email, nama_depan, nama_belakang, status, role_id,
-            User::create([
+
+            $user = User::create([
                 'username' => 'karyawan',
                 'password' => bcrypt('rahasia'),
                 'email' => 'karyawan@gmail.com',
@@ -38,6 +40,12 @@ class UserSeeder extends Seeder
                 'nama_belakang' => '1',
                 'status' => '1',
                 'role_id' => '2'
+            ]);
+
+            Karyawan::create([
+                'nomor_karyawan' => '00001',
+                'nama_karyawan' => $user->nama_depan . ' ' . $user->nama_belakang,
+                'user_id' => $user->id
             ]);
         }
     }

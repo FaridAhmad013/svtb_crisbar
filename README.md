@@ -1,61 +1,142 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SVTBCrisbar: Aplikasi Pelacakan Nilai Stok Dapur Produksi
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Selamat datang di SVTBCrisbar! Aplikasi ini dirancang khusus untuk Central Kitchen Crisbar Melong untuk memecahkan tantangan dalam mengetahui nilai riil bahan baku yang terpakai setiap hari.
 
-## About Laravel
+## 🚀 Tentang Aplikasi
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Setiap hari, dapur produksi mengolah berbagai bahan baku menjadi produk jadi. Namun, seringkali sulit untuk mengetahui secara pasti berapa nilai rupiah dari bahan yang benar-benar terpakai. Aplikasi SVTBCrisbar hadir sebagai solusi untuk:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1.  [cite_start]**Mencatat Stok Awal**: Karyawan mencatat jumlah dan nilai semua bahan baku di pagi hari sebelum proses produksi dimulai.
+2.  [cite_start]**Mencatat Stok Akhir**: Setelah produksi selesai, karyawan kembali mencatat sisa bahan baku yang ada.
+3.  [cite_start]**Menghitung Nilai Terpakai**: Sistem secara otomatis menghitung selisih stok untuk mendapatkan nilai (Rp) akurat dari bahan yang terpakai dalam satu hari produksi.
+4.  [cite_start]**Menyajikan Laporan**: Pemilik dapat melihat laporan yang jelas mengenai biaya produksi harian, membantu dalam analisis biaya dan pengambilan keputusan.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## ✨ Fitur Utama
 
-## Learning Laravel
+-   **Input Data Cepat via CSV**: Karyawan dapat dengan mudah mengunggah data stok opname menggunakan template file CSV.
+-   **Validasi Data Otomatis**: Sistem akan memvalidasi data yang diunggah untuk mencegah kesalahan input, seperti format yang salah atau nilai yang tidak valid.
+-   **Perhitungan Biaya Real-time**: Biaya bahan terpakai dan nilai per produk dihitung secara otomatis setelah opname selesai.
+-   **Laporan Produksi Informatif**: Laporan dapat difilter berdasarkan tanggal dan disajikan secara jelas untuk analisis oleh pemilik.
+-   **Manajemen Peran Pengguna**: Hak akses dibedakan antara **Admin (Pemilik)** dan **Karyawan**.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## ⚙️ Untuk Pengembang: Panduan Instalasi & Setup
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Bagian ini ditujukan untuk Anda yang akan melakukan instalasi proyek di lingkungan lokal atau server.
 
-## Laravel Sponsors
+### Prasyarat
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Pastikan perangkat Anda telah terpasang:
+-   PHP **^8.2**
+-   Composer
+-   Node.js & NPM
+-   Database (misalnya: MySQL, MariaDB)
 
-### Premium Partners
+### Langkah-Langkah Instalasi
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+1.  **Clone Repository**
+    Buka terminal dan jalankan perintah:
+    ```bash
+    git clone [URL_REPOSITORY_ANDA]
+    cd [NAMA_FOLDER_PROYEK]
+    ```
 
-## Contributing
+2.  **Install Dependency PHP**
+    ```bash
+    composer install
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3.  **Persiapan File `.env`**
+    Salin file konfigurasi environment dan generate kunci aplikasi.
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
 
-## Code of Conduct
+4.  **Konfigurasi Database**
+    Buka file `.env` dan atur koneksi ke database Anda.
+    ```env
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=svtbcrisbar
+    DB_USERNAME=root
+    DB_PASSWORD=
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+5.  **Jalankan Migrasi & Seeder Database**
+    Perintah ini akan membuat semua tabel yang dibutuhkan dan mengisi data awal (termasuk akun admin dan karyawan).
+    ```bash
+    php artisan migrate --seed
+    ```
 
-## Security Vulnerabilities
+6.  **Install & Build Aset Frontend**
+    Perintah ini akan menginstall dependency JavaScript dan mengkompilasi aset (CSS/JS) untuk aplikasi.
+    ```bash
+    npm install
+    npm run build
+    ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+7.  **Hubungkan Folder Storage**
+    Agar file publik seperti template unduhan dapat diakses, jalankan:
+    ```bash
+    php artisan storage:link
+    ```
 
-## License
+8.  **Jalankan Server Lokal**
+    Selamat! Aplikasi Anda siap dijalankan.
+    ```bash
+    php artisan serve
+    ```
+    Aplikasi sekarang dapat diakses melalui **http://127.0.0.1:8000**.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+> **Catatan Untuk Development Aktif**: Jika Anda sedang aktif melakukan perubahan pada file CSS atau JavaScript, jalankan `npm run dev` di terminal terpisah. Perintah ini akan otomatis me-refresh browser setiap kali ada perubahan pada kode frontend.
+
+---
+
+## 👨‍🍳 Untuk Pengguna: Panduan Aplikasi
+
+Bagian ini menjelaskan cara menggunakan aplikasi setelah terpasang.
+
+### 🔑 Akses Login
+
+Gunakan akun di bawah ini untuk masuk ke dalam sistem. Anda bisa mengubah password setelah login pertama kali.
+
+| Peran     | Email                | Password |
+| :-------- | :------------------- | :------- |
+| Admin     | `admin@gmail.com`    | `rahasia`  |
+| Karyawan  | `karyawan@gmail.com` | `rahasia`  |
+
+### Alur Kerja Harian Karyawan
+
+Ini adalah rutinitas harian yang akan dilakukan oleh pengguna dengan peran **Karyawan**.
+
+**1. Pagi Hari (Sebelum Produksi Dimulai)**
+-   Login ke sistem.
+-   Masuk ke menu **Proses Produksi Harian** -> **Opname (Pre-Production)**.
+-   Klik tombol **`+ Tambah Data Produksi`**.
+-   [cite_start]Isi nama produk yang akan dibuat (contoh: "Bumbu Crisbar Melong 500gr").
+-   Unduh template CSV, lalu isi dengan semua bahan baku yang disiapkan untuk produksi hari itu.
+-   Unggah kembali file CSV tersebut, lihat preview untuk memastikan data benar, lalu simpan.
+
+**2. Sore/Malam Hari (Setelah Produksi Selesai)**
+-   Masuk kembali ke menu produksi.
+-   Pilih data opname pagi yang sesuai.
+-   Lanjutkan ke tahap **Opname (Post-Production)**.
+-   [cite_start]Input **jumlah produk jadi** yang berhasil dibuat.
+-   [cite_start]Input **sisa kuantitas** dari setiap bahan baku yang ada.
+-   Simpan data. Sistem akan otomatis menghitung nilai bahan yang terpakai.
+
+### Alur Kerja Pemilik (Admin)
+
+Pengguna dengan peran **Admin** memiliki tugas untuk memantau dan menganalisis.
+
+-   Login ke sistem.
+-   Masuk ke menu **Laporan** -> **Laporan Produksi**.
+-   Di sini, Anda dapat melihat rekapitulasi biaya bahan harian.
+-   Gunakan filter untuk melihat data pada rentang tanggal tertentu untuk analisis lebih mendalam.
+
+## 📄 Lisensi
+
+Proyek ini dilisensikan di bawah [Lisensi MIT](https://opensource.org/licenses/MIT).
