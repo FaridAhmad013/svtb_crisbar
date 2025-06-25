@@ -137,8 +137,7 @@ class OpnamePostProductionController extends Controller
             'qty',
         ]);
 
-
-        $formData['qty'] = (int) Util::removeSeperator($formData['qty']);
+        $formData['qty'] = (float) $formData['qty'];
         try {
             $run = OpnamePostProduction::where('id', $id)->first();
 

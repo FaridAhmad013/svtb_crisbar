@@ -77,7 +77,6 @@ class OpnamePostProductionDataTable extends DataTable
     {
         return [
             Column::make('tanggal'),
-            Column::make('nama_produk'),
             Column::make('nama_bahan'),
             Column::make('qty'),
             Column::make('satuan'),

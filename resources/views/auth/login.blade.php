@@ -147,7 +147,10 @@
               </div>
               <div class="mb-4">
                 <label for="username" class="text-gray-900 block text-sm mb-1 font-medium">Password</label>
-                <input type="password" name="password" id="password" class="border border-gray-500 text-gray-900 text-sm rounded-lg  focus:outline-none block w-full p-2.5" autocomplete="off">
+                <div class="relative">
+                  <input type="password" name="password" id="password" class="border border-gray-500 text-gray-900 text-sm rounded-lg  focus:outline-none block w-full px-2 py-3 text-sm pr-10" autocomplete="off">
+                  <span class="absolute inset-y-0 right-0 flex items-center pr-3"><i class="fas fa-eye text-gray-400 cursor-pointer toggle-password" toggle="#password"></i></span>
+                </div>
               </div>
               <div class="my-4">
                 <button type="button" class="mt-9 bg-red-400 px-12 py-3 rounded-lg hover:bg-red-500 text-white w-full" id="btn-submit" onclick="save()" ><i class="fas fa-spinner animate-spin mr-2" style="display: none"></i> Login</button>
@@ -164,6 +167,19 @@
   <script src="{{ asset('vendors/jquery/jquery-3.7.1.min.js') }}" crossorigin="anonymous"></script>
   <script src="{{ asset('js/global.js') }}"></script>
   <script>
+    $(() => {
+      $(".toggle-password").click(function() {
+        $(this).toggleClass("fa-eye fa-eye-slash");
+
+        let input = $($(this).attr("toggle"));
+
+        if (input.attr("type") === "password") {
+          input.attr("type", "text");
+        } else {
+          input.attr("type", "password");
+        }
+      });
+    })
     function save(){
       $('#btn-submit').prop('disabled', true)
       $('#btn-submit i').show()
@@ -180,7 +196,7 @@
         type: 'POST',
       }).done((res) => {
         if(res?.status == true){
-          let html = '<div class="mb-3 p-3 bg-emerald-300 text-emerald-50 rounded-lg leading-[1.5] tracking-wide w-full">'
+          let html = '<div class="mb-3 p-3 bg-emerald-400 text-emerald-50 rounded-lg leading-[1.5] tracking-wide w-full">'
           html += `${res?.message}`
           html += '</div>'
           Ryuna.noty('success', '', res?.message)

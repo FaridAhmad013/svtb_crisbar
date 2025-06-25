@@ -51,7 +51,6 @@
             <thead>
               <tr>
                 <th class="px-6 py-3 text-gray-400 font-light min-w-46">Tanggal</th>
-                <th class="px-6 py-3 text-gray-400 font-light min-w-46">Nama Produk</th>
                 <th class="px-6 py-3 text-gray-400 font-light min-w-46">Nama Bahan</th>
                 <th class="px-6 py-3 text-gray-400 font-light min-w-20">QTY</th>
                 <th class="px-6 py-3 text-gray-400 font-light">Satuan</th>
@@ -115,7 +114,7 @@
         search: `<i class="fas fa-search"></i>`,
         infoFiltered: ``
       },
-      order: [[1, 'asc']],
+      order: [[0, 'asc']],
       dom: "<'flex flex-wrap justify-between'<'w-5/12'B><f><l>> <'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
       buttons: dt_buttons,
       processing: true,
@@ -138,14 +137,6 @@
         {
           data: 'tanggal',
           className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200'
-        },
-        {
-          data: 'nama_produk',
-          className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200',
-          render: function (data, type, row) {
-            $('#nama_produk').val(data)
-            return data
-          },
         },
         {
           data: 'nama_bahan',

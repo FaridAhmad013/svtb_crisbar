@@ -74,37 +74,43 @@ class CatatHasilProduksiController extends Controller
 
     public function store(Request $request)
     {
+               // 1. Validasi Input
         $rules = [
-            'tanggal' => 'required',
+            'tanggal' => 'required|date',
             'qty' => 'required',
-            'nama_produk' => 'required'
+            'nama_produk' => 'required|string|max:255'
         ];
-
         $message = [
             'tanggal.required' => 'Kolom Tanggal tidak boleh kosong',
             'nama_produk.required' => 'Kolom Nama Produk tidak boleh kosong',
             'qty.required' => 'Kolom QTY tidak boleh kosong',
-
         ];
         $request->validate($rules, $message);
 
-        $formData = $request->only([
-            'tanggal',
-            'qty',
-            'nama_produk'
-        ]);
-
-        $formData['tanggal'] = Carbon::parse($request->tanggal)->format('Y-m-d');
-        $formData['karyawan_id']  = AuthCommon::user()->karyawan->id;
-        $formData['qty'] = (int) Util::removeSeperator($formData['qty']);
-
+        // Memulai database transaction untuk menjaga integritas data
         DB::beginTransaction();
-        try{
-            QtyProduksi::create($formData);
+        try {
+            // 2. Persiapkan Data Awal
+            $tanggal = Carbon::parse($request->tanggal)->format('Y-m-d');
+            $namaProduk = $request->nama_produk;
+            $qtyHasilProduksi = (float) Util::removeSeperator($request->qty);
 
-            $opnamePre = OpnamePreProduction::whereDate('tanggal', $formData['tanggal'])->get();
+            // 3. Simpan Qty Produksi (Catat Hasil Produksi)
+            QtyProduksi::create([
+                'tanggal' => $tanggal,
+                'nama_produk' => $namaProduk,
+                'qty' => $qtyHasilProduksi,
+                'karyawan_id' => AuthCommon::user()->karyawan->id
+            ]);
 
-            $opnamePost = OpnamePostProduction::whereDate('tanggal', $formData['tanggal'])->get();
+            // 4. Ambil Data Opname (dengan filter NAMA PRODUK)
+            $opnamePre = OpnamePreProduction::whereDate('tanggal', $tanggal)
+                                            ->where('nama_produk', $namaProduk)
+                                            ->get();
+
+            $opnamePost = OpnamePostProduction::whereDate('tanggal', $tanggal)
+                                              ->where('nama_produk', $namaProduk)
+                                              ->get();
 
             if ($opnamePre->isEmpty()) {
                 DB::rollBack();
@@ -114,40 +120,62 @@ class CatatHasilProduksiController extends Controller
                 ], 404);
             }
 
+            // --- Mulai Logika Kalkulasi Laporan ---
+
+            // 5. Hitung Total Nilai Bahan yang Terpakai
             $totalNilaiBahan = 0;
             foreach ($opnamePre as $pre) {
+                // Cari data post-opname yang cocok berdasarkan nama bahan
                 $post = $opnamePost->firstWhere('nama_bahan', $pre->nama_bahan);
-                $qtySisa = $post ? $post->qty : 0;
 
-                $qtyTerpakai = $pre->qty - $qtySisa;
-                $biayaBahan = $qtyTerpakai * $pre->nilai_per_satuan;
+                // Konversi QTY ke tipe float untuk perhitungan yang akurat
+                $qtyAwal = (float) $pre->qty;
+                $qtySisa = $post ? (float) $post->qty : 0; // Jika tidak ada sisa, anggap 0
+
+                // Hitung selisih dan biaya sesuai aturan
+                $qtyTerpakai = $qtyAwal - $qtySisa;
+                $biayaBahan = $qtyTerpakai * $pre->nilai_persatuan; // Gunakan nilai per satuan dari PRE-OPNAME
+
                 $totalNilaiBahan += $biayaBahan;
             }
 
-            $qtyHasilProduksi = $formData['qty'];
+            // 6. Hitung Nilai Per Produksi
             $nilaiPerProduksi = ($qtyHasilProduksi > 0) ? ($totalNilaiBahan / $qtyHasilProduksi) : 0;
 
-            LaporanProduksi::create([
-                'tanggal' => $formData['tanggal'],
-                'nama_produk' => $request->nama_produk,
-                'qty' => $qtyHasilProduksi,
-                'nilai_bahan' => $totalNilaiBahan,
-                'nilai_laporan_per_produksi' => $nilaiPerProduksi
-            ]);
+
+            // 7. Buat atau Update Laporan Produksi untuk menghindari duplikasi
+            LaporanProduksi::updateOrCreate(
+                [
+                    // Kondisi pencarian
+                    'tanggal' => $tanggal,
+                    'nama_produk' => $namaProduk
+                ],
+                [
+                    // Data yang akan dibuat atau diupdate
+                    'qty' => $qtyHasilProduksi,
+                    'nilai_bahan' => $totalNilaiBahan,
+                    'nilai_laporan_per_produksi' => $nilaiPerProduksi
+                ]
+            );
+
+            // Jika semua berhasil, commit transaction
             DB::commit();
             return response([
                 'status' => true,
-                'message' => ResponseConstant::RM_CREATE_SUCCESS
+                'message' => ResponseConstant::RM_CREATE_SUCCESS ?? 'Data berhasil disimpan.'
             ]);
+
         } catch (\Throwable $th) {
+            // Jika terjadi error, batalkan semua query
             DB::rollBack();
             return response([
                 'status' => false,
-                'message' => ResponseConstant::RM_UPDATE_FAILED,
+                'message' => ResponseConstant::RM_UPDATE_FAILED ?? 'Terjadi kesalahan pada server.',
                 'error' => $th->getMessage()
-            ], 400);
+            ], 500);
         }
     }
+
 
     public function check_sudah_melakukan_catat_hasil_produksi($date){
         $catat_hasil_produksi = false;
