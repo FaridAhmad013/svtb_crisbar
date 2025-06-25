@@ -2,14 +2,18 @@
 
 Selamat datang di SVTBCrisbar! Aplikasi ini dirancang khusus untuk Central Kitchen Crisbar Melong untuk memecahkan tantangan dalam mengetahui nilai riil bahan baku yang terpakai setiap hari.
 
+Aplikasi ini memiliki dua peran pengguna utama:
+1.  **Karyawan**: Bertanggung jawab untuk melakukan pencatatan stok harian.
+2.  **Pemilik (Admin)**: Bertanggung jawab untuk memantau laporan dan menganalisis biaya produksi.
+
 ## 🚀 Tentang Aplikasi
 
 Setiap hari, dapur produksi mengolah berbagai bahan baku menjadi produk jadi. Namun, seringkali sulit untuk mengetahui secara pasti berapa nilai rupiah dari bahan yang benar-benar terpakai. Aplikasi SVTBCrisbar hadir sebagai solusi untuk:
 
-1.  [cite_start]**Mencatat Stok Awal**: Karyawan mencatat jumlah dan nilai semua bahan baku di pagi hari sebelum proses produksi dimulai.
-2.  [cite_start]**Mencatat Stok Akhir**: Setelah produksi selesai, karyawan kembali mencatat sisa bahan baku yang ada.
-3.  [cite_start]**Menghitung Nilai Terpakai**: Sistem secara otomatis menghitung selisih stok untuk mendapatkan nilai (Rp) akurat dari bahan yang terpakai dalam satu hari produksi.
-4.  [cite_start]**Menyajikan Laporan**: Pemilik dapat melihat laporan yang jelas mengenai biaya produksi harian, membantu dalam analisis biaya dan pengambilan keputusan.
+1.  **Mencatat Stok Awal**: Karyawan mencatat jumlah dan nilai semua bahan baku di pagi hari sebelum proses produksi dimulai.
+2.  **Mencatat Stok Akhir**: Setelah produksi selesai, karyawan kembali mencatat sisa bahan baku yang ada.
+3.  **Menghitung Nilai Terpakai**: Sistem secara otomatis menghitung selisih stok untuk mendapatkan nilai (Rp) akurat dari bahan yang terpakai dalam satu hari produksi.
+4.  **Menyajikan Laporan**: Pemilik dapat melihat laporan yang jelas mengenai biaya produksi harian, membantu dalam analisis biaya dan pengambilan keputusan.
 
 ## ✨ Fitur Utama
 
@@ -17,7 +21,7 @@ Setiap hari, dapur produksi mengolah berbagai bahan baku menjadi produk jadi. Na
 -   **Validasi Data Otomatis**: Sistem akan memvalidasi data yang diunggah untuk mencegah kesalahan input, seperti format yang salah atau nilai yang tidak valid.
 -   **Perhitungan Biaya Real-time**: Biaya bahan terpakai dan nilai per produk dihitung secara otomatis setelah opname selesai.
 -   **Laporan Produksi Informatif**: Laporan dapat difilter berdasarkan tanggal dan disajikan secara jelas untuk analisis oleh pemilik.
--   **Manajemen Peran Pengguna**: Hak akses dibedakan antara **Admin (Pemilik)** dan **Karyawan**.
+-   **Manajemen Peran Pengguna**: Hak akses dibedakan antara **Pemilik (Admin)** dan **Karyawan**.
 
 ---
 
@@ -30,19 +34,19 @@ Bagian ini ditujukan untuk Anda yang akan melakukan instalasi proyek di lingkung
 Pastikan perangkat Anda telah terpasang:
 -   PHP **^8.2**
 -   Composer
--   Node.js & NPM
+-   Node.js (**v16 atau lebih baru**) & NPM
 -   Database (misalnya: MySQL, MariaDB)
 
 ### Langkah-Langkah Instalasi
 
-1.  **Clone Repository**
-    Buka terminal dan jalankan perintah:
+1.  **Ekstrak File Proyek**
+    Ekstrak file `.zip` proyek yang sudah Anda unduh ke direktori kerja Anda. Lalu, buka terminal atau command prompt dan masuk ke dalam folder tersebut.
     ```bash
-    git clone [URL_REPOSITORY_ANDA]
     cd [NAMA_FOLDER_PROYEK]
     ```
 
 2.  **Install Dependency PHP**
+    Karena file ZIP tidak menyertakan folder `vendor`, Anda harus menjalankan perintah ini untuk mengunduh semua library PHP yang dibutuhkan.
     ```bash
     composer install
     ```
@@ -66,7 +70,7 @@ Pastikan perangkat Anda telah terpasang:
     ```
 
 5.  **Jalankan Migrasi & Seeder Database**
-    Perintah ini akan membuat semua tabel yang dibutuhkan dan mengisi data awal (termasuk akun admin dan karyawan).
+    Perintah ini akan membuat semua tabel yang dibutuhkan dan mengisi data awal (termasuk akun pengguna default).
     ```bash
     php artisan migrate --seed
     ```
@@ -74,7 +78,7 @@ Pastikan perangkat Anda telah terpasang:
 6.  **Install & Build Aset Frontend**
     Perintah ini akan menginstall dependency JavaScript dan mengkompilasi aset (CSS/JS) untuk aplikasi.
     ```bash
-    npm install --save-dev vite
+    npm install
     npm run build
     ```
 
@@ -103,12 +107,12 @@ Bagian ini menjelaskan cara menggunakan aplikasi setelah terpasang.
 
 Gunakan akun di bawah ini untuk masuk ke dalam sistem. Anda bisa mengubah password setelah login pertama kali.
 
-| Peran     | Email                | Password |
-| :-------- | :------------------- | :------- |
-| Admin     | `admin@gmail.com`    | `rahasia`  |
-| Karyawan  | `karyawan@gmail.com` | `rahasia`  |
+| Peran             | Email                | Password |
+| :---------------- | :------------------- | :------- |
+| **Pemilik (Admin)** | `admin@gmail.com`    | `rahasia`  |
+| **Karyawan** | `karyawan@gmail.com` | `rahasia`  |
 
-### Alur Kerja Harian Karyawan
+### Alur Kerja (Role: Karyawan)
 
 Ini adalah rutinitas harian yang akan dilakukan oleh pengguna dengan peran **Karyawan**.
 
@@ -116,25 +120,24 @@ Ini adalah rutinitas harian yang akan dilakukan oleh pengguna dengan peran **Kar
 -   Login ke sistem.
 -   Masuk ke menu **Proses Produksi Harian** -> **Opname (Pre-Production)**.
 -   Klik tombol **`+ Tambah Data Produksi`**.
--   [cite_start]Isi nama produk yang akan dibuat (contoh: "Bumbu Crisbar Melong 500gr").
+-   Isi nama produk yang akan dibuat (contoh: "Bumbu Crisbar Melong 500gr").
 -   Unduh template CSV, lalu isi dengan semua bahan baku yang disiapkan untuk produksi hari itu.
 -   Unggah kembali file CSV tersebut, lihat preview untuk memastikan data benar, lalu simpan.
 
 **2. Sore/Malam Hari (Setelah Produksi Selesai)**
 -   Masuk kembali ke menu produksi.
 -   Pilih data opname pagi yang sesuai.
--   Lanjutkan ke tahap **Opname (Post-Production)**.
--   [cite_start]Input **jumlah produk jadi** yang berhasil dibuat.
--   [cite_start]Input **sisa kuantitas** dari setiap bahan baku yang ada.
+-   Lanjutkan ke tahap **Opname (Post-Production)** untuk mencatat sisa bahan.
+-   Masuk ke menu **Catat Hasil Produksi** untuk menginput jumlah produk jadi yang berhasil dibuat.
 -   Simpan data. Sistem akan otomatis menghitung nilai bahan yang terpakai.
 
-### Alur Kerja Pemilik (Admin)
+### Alur Kerja (Role: Pemilik)
 
-Pengguna dengan peran **Admin** memiliki tugas untuk memantau dan menganalisis.
+Pengguna dengan peran **Pemilik** memiliki tugas untuk memantau dan menganalisis.
 
 -   Login ke sistem.
--   Masuk ke menu **Laporan** -> **Laporan Produksi**.
--   Di sini, Anda dapat melihat rekapitulasi biaya bahan harian.
+-   Masuk ke menu **Dashboard** untuk melihat ringkasan visual biaya produksi, tren, dan KPI lainnya.
+-   Masuk ke menu **Laporan** -> **Laporan Produksi** untuk melihat data mendetail.
 -   Gunakan filter untuk melihat data pada rentang tanggal tertentu untuk analisis lebih mendalam.
 
 ## 📄 Lisensi
