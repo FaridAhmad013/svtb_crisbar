@@ -62,6 +62,10 @@ Route::prefix('admin')->middleware([RyunnaAuth::class])->group(function () {
 
     Route::prefix('laporan')->group(function () {
         Route::get('laporan_produksi', [LaporanProduksiController::class, 'index'])->name('laporan_produksi.index');
+        Route::get('laporan_produksi/{id}', [LaporanProduksiController::class, 'show'])->name('laporan_produksi.show');
+        Route::get('laporan_produksi/get_detail_perhitungan/{id}', [LaporanProduksiController::class, 'get_detail_perhitungan'])->name('laporan_produksi.get_detail_perhitungan');
+
+
     });
 
 

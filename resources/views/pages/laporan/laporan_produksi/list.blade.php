@@ -30,6 +30,7 @@
           <table class="text-left w-full dt-wow">
             <thead>
               <tr>
+                <th class="px-6 py-3 text-gray-400 font-light">Aksi</th>
                 <th class="px-6 py-3 text-gray-400 font-light min-w-46">Tanggal</th>
                 <th class="px-6 py-3 text-gray-400 font-light min-w-46">Nama Produk</th>
                 <th class="px-6 py-3 text-gray-400 font-light min-w-20">QTY</th>
@@ -52,14 +53,12 @@
 <script>
   let _url = {
     datatable: `{{ route('datatable.'.$module) }}`,
+    show: `{{ route($module.'.show', ':id') }}`,
+    get_detail_perhitungan: `{{ route($module.'.get_detail_perhitungan', ':id') }}`
   }
-
-  let data_bahan = []
-  let check_sudah_melakukan_catat_hasil_produksi_bool = false
 
 
   let table;
-  let _limit = 10;
 
   $(() => {
 
@@ -121,6 +120,10 @@
       },
       columns: [
         {
+          data: 'aksi',
+          className: 'px-6 py-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200',
+        },
+        {
           data: 'tanggal',
           className: 'mx-6 my-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200'
         },
@@ -154,5 +157,53 @@
     });
 
   })
+
+  function show(id){
+    Ryuna.blockUI()
+    $.get(_url.show.replace(':id', id)).done((res) => {
+      Ryuna.modal({
+        title: res?.title,
+        body: res?.body,
+        footer: res?.footer
+      })
+      Ryuna.large_modal()
+      Ryuna.unblockUI()
+
+      setTimeout(() => {
+        get_detail_perhitungan(res?.id)
+      }, 500);
+    }).fail((xhr) => {
+      Ryuna.unblockUI()
+      Swal.fire({
+        title: 'Whoops!',
+        text: xhr?.responseJSON?.message ? xhr.responseJSON.message : 'Internal Server Error',
+        type: 'error',
+        confirmButtonColor: '#007bff'
+      })
+    })
+  }
+
+  function get_detail_perhitungan(id){
+    $('#table-detail-perhitungan tbody').empty()
+    $.get(_url.get_detail_perhitungan.replace(':id', id)).done((res) => {
+      const data = res?.data?.perhitungan ?? []
+      data.map((item) => {
+        $('#table-detail-perhitungan tbody').append(`
+          <tr>
+            <td class="px-6 py-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200">${item?.nama_bahan ?? ''}</td>
+            <td class="px-6 py-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200">${item?.qty_pre ?? ''}</td>
+            <td class="px-6 py-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200">${item?.qty_post ?? ''}</td>
+            <td class="px-6 py-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200">${item?.selisih_qty ?? ''}</td>
+            <td class="px-6 py-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200">${Ryuna.format_nominal(item?.nilai_per_satuan ?? 0)}</td>
+            <td class="px-6 py-4 font-medium text-sm text-gray-600 antialiased  tracking-wide text-nowrap border-b border-gray-200">${Ryuna.format_nominal(item?.cost ?? 0)}</td>
+          </tr>
+        `)
+      })
+
+      $('#total_cost').text(Ryuna.format_nominal(res?.data?.jumlah ?? 0))
+    }).fail((xhr) => {
+      Ryuna.noty("error", "", xhr?.responseJSON?.message ?? 'Terjadi Kesalahan Internal')
+    })
+  }
 </script>
 @endsection

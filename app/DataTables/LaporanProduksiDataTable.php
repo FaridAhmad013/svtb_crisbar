@@ -22,6 +22,12 @@ class LaporanProduksiDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
+            ->addColumn('aksi', function ($data) {
+                $html = '<div class="relative inline-flex bg-gray-800 text-white rounded-lg text-center" branch="group">';
+                $html .= '<a href="javascript:show('.$data->id.')" class="text-xs p-2 cursor-pointer">Detail</a>';
+                $html .= '</div>';
+                return $html;
+            })
             ->editColumn('nilai_bahan', function ($data) {
                 return Util::rupiah($data->nilai_bahan ?? 0);
             })
@@ -46,7 +52,7 @@ class LaporanProduksiDataTable extends DataTable
                 }
                 return '';
             })
-            ->rawColumns(['nilai_rupiah', 'nilai_persatuan']);
+            ->rawColumns(['aksi', 'nilai_rupiah', 'nilai_persatuan']);
     }
 
     /**
@@ -68,6 +74,7 @@ class LaporanProduksiDataTable extends DataTable
     public function getColumns(): array
     {
         return [
+            Column::computed('aksi')->title('aksi')->orderable(false)->searchable(false),
             Column::make('tanggal'),
             Column::make('nama_produk'),
             Column::make('qty'),
